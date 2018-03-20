@@ -5,7 +5,7 @@ const express = require("express");
 const app = express();
 const WebSocket = require("ws");
 
-const CLIENT_ID = "fb87a8dcc6504073a292ae657458c3ea";
+const CLIENT_ID = "f837d8ee1f684e68b896f42f3c217158";
 const REDIRECT_URI = "http://localhost/callback";
 const HTTP_PORT = process.env.PORT || 80;
 const WSS_PORT = 9090;
@@ -14,7 +14,7 @@ const CSFile = fs.readFileSync("./CLIENT_SECRET");
 const CLIENT_SECRET = CSFile.toString("utf8", 0, CSFile.length - 1); // length - 1 removes newline at end of file
 
 app.get("/login", (req, res) => {
-	let scopes = "user-top-read user-read-recently-played user-library-read";
+	let scopes = "user-library-read";
 	let redirectURL = "https://accounts.spotify.com/authorize" +
 					  "?client_id=" + CLIENT_ID +
 					  "&response_type=code" +
