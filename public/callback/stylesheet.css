@@ -1,0 +1,37 @@
+h4 {
+	margin: 5px auto;
+}
+
+p {
+	margin: 5px auto;
+}
+
+#left, #right {
+	display: inline-block;
+	vertical-align: top;
+}
+
+#left {
+	margin-right: 20px;
+}
+
+#plSelectHolder {
+	margin-bottom: 20px;
+}
+
+#configForm > p {
+	display: inline-block;
+}
+
+#configError {
+	visibility: hidden;
+	color: red;
+}
+
+#preview {
+	display: block;
+}
+
+#download {
+	visibility: hidden;
+}
