@@ -11,7 +11,7 @@ const HTTP_PORT = process.env.PORT || 80;
 const WSS_PORT = 9090;
 
 const CSFile = fs.readFileSync("./CLIENT_SECRET");
-const CLIENT_SECRET = CSFile.toString("utf8", 0, CSFile.length - 1); // length - 1 removes newline at end of file
+const CLIENT_SECRET = CSFile.toString("utf8", 0, CSFile.length);
 
 app.get("/login", (req, res) => {
 	let scopes = "user-library-read";
@@ -29,8 +29,6 @@ app.get("/callback", (req, res) => {
 	} else {
 		res.sendFile(__dirname + "/public/callback");
 	}
-
-	let code = req.query.code;
 });
 
 app.use(express.static("./public", { "extensions": ["html"] }));
@@ -64,7 +62,7 @@ wss.on("callbackCode", (ws, wsData) => {
 			"Content-Type": "application/x-www-form-urlencoded"
 		},
 		"auth": CLIENT_ID + ":" + CLIENT_SECRET
-	}
+	};
 
 	const postReq = https.request(options, (res) => {
 		let data = "";
@@ -100,7 +98,7 @@ function getUserID(ws, callback) {
 		"headers": {
 			"Authorization": "Bearer " + ws.spotify.access_token
 		}
-	}
+	};
 
 	https.get(options, (res) => {
 		let data = "";
@@ -126,7 +124,7 @@ function getPlaylistsNext(access_token, next, callback, finalCallback) {
 	const options = url.parse(next);
 	options.headers = {
 			"Authorization": "Bearer " + access_token
-	}
+	};
 
 	const postReq = https.request(options, (res) => {
 		let data = "";
@@ -159,7 +157,7 @@ wss.on("playlistChosen", (ws, wsData) => {
 });
 
 function getPlaylistSongs(access_token, userId, playlistId, callback, finalCallback) {
-	getPlaylistsNext(access_token,
+	getPlaylistSongsNext(access_token,
 					 "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks",
 					 callback, finalCallback);
 
@@ -169,7 +167,7 @@ function getPlaylistSongsNext(access_token, next, callback, finalCallback) {
 	const options = url.parse(next);
 	options.headers = {
 			"Authorization": "Bearer " + access_token
-	}
+	};
 
 	const postReq = https.request(options, (res) => {
 		let data = "";

@@ -23,14 +23,14 @@ class Point {
 const Config = {
 	minSize: 150,
 	maxSize: 250
-}
+};
 
 const ws = new WebSocket("ws://" + window.location.hostname + ":9090");
 
 const wsEvents = {};
 ws.on = (event, callback) => {
 	wsEvents[event] = callback;
-}
+};
 
 ws.onmessage = (e) => {
 	const msg = JSON.parse(e.data);
@@ -39,7 +39,7 @@ ws.onmessage = (e) => {
 	if(event) {
 		event(msg.data);
 	}
-}
+};
 
 let callbackCode = window.location.href.match(/\?code=(.*)/)[1];
 let callbackEv = {
@@ -47,11 +47,11 @@ let callbackEv = {
 	"data": {
 		"code": callbackCode
 	}
-}
+};
 
 ws.onopen = (e) => {
 	ws.send(JSON.stringify(callbackEv));
-}
+};
 
 const playlistForm = document.getElementById("playlistForm");
 const playlistSelect = document.getElementById("playlistSelect");
@@ -92,7 +92,7 @@ playlistForm.onsubmit = (e) => {
 			"id": playlistSelect.value
 		}
 	}));
-}
+};
 
 const artCanvas = document.createElement("canvas");
 artCanvas.width = "1280";
@@ -170,16 +170,16 @@ function addAllSongs(songs, priQ) {
 								addAllSongs(songs, priQ);
 							}
 						}
-					}
+					};
 					img.src = reader.result;
-				}
+				};
 				reader.readAsDataURL(req.response);
 			}
-		}
+		};
 		req.open("GET", imageUrl);
 		req.responseType = "blob";
 		req.send();
-	};
+	}
 }
 
 function shuffle(arr) {
