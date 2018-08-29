@@ -41,17 +41,32 @@ ws.onmessage = (e) => {
 	}
 };
 
-let callbackCode = window.location.href.match(/\?code=(.*)/)[1];
-let callbackEv = {
-	"event": "callbackCode",
-	"data": {
-		"code": callbackCode
-	}
+ws.onopen = (e) => {
+	let event, userId;
+	if((userId = localStorage.getItem("userId"))) {
+		event = {
+			"event": "userIdExists",
+			"data": {
+				"userId": userId
+			}
+		};
+	} else {
+        let callbackCode = window.location.href.match(/\?code=(.*)/)[1];
+        event = {
+            "event": "callbackCode",
+            "data": {
+                "code": callbackCode
+            }
+        };
+    }
+
+    ws.send(JSON.stringify(event));
+    window.history.pushState({}, "", window.origin + "/art"); // TODO: make constant
 };
 
-ws.onopen = (e) => {
-	ws.send(JSON.stringify(callbackEv));
-};
+ws.on("setUserId", (uuid) => {
+	localStorage.setItem("userId", uuid);
+});
 
 const playlistForm = document.getElementById("playlistForm");
 const playlistSelect = document.getElementById("playlistSelect");
@@ -266,3 +281,5 @@ function drawArt(ctx, img, x, y, size, steps) {
     }
     ctx.drawImage(imgCanvas, 0, 0, thisSize, thisSize, x, y, thisSize, thisSize);
 }
+
+// TODO: separate into multiple files
