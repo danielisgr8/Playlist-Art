@@ -1,3 +1,5 @@
+![](https://i.imgur.com/taudJcz.jpg)
+
 # Playlist-Art
 
 Playlist Art creates art for your Spotify playlists. Upon selecting a playlist, album art from each song in the playlist will be combined into a "collage" the user can download and use. Currently, album art will be given a random size and placed into a random part of the final image. The user can customize minimum and maximum art sizes. I am currently working on more ways to combine the art.
