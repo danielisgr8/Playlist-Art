@@ -1,7 +1,6 @@
-# personal stuff
 *.swp
-old/
 CLIENT_SECRET
+package-lock.json
 .idea/
 
 # Logs

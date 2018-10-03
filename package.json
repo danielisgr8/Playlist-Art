@@ -1,0 +1,25 @@
+{
+  "name": "playlist-art",
+  "version": "1.0.0",
+  "description": "Create art for Spotify playlists",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danielisgr8/Playlist-Art.git"
+  },
+  "author": "Daniel Schubert",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/danielisgr8/Playlist-Art/issues"
+  },
+  "homepage": "https://github.com/danielisgr8/Playlist-Art#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "uuid": "^3.3.2",
+    "ws": "^6.0.0"
+  }
+}

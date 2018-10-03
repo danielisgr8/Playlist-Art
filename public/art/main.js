@@ -23,14 +23,14 @@ class Point {
 const Config = {
 	minSize: 150,
 	maxSize: 250
-}
+};
 
 const ws = new WebSocket("ws://" + window.location.hostname + ":9090");
 
 const wsEvents = {};
 ws.on = (event, callback) => {
 	wsEvents[event] = callback;
-}
+};
 
 ws.onmessage = (e) => {
 	const msg = JSON.parse(e.data);
@@ -39,19 +39,34 @@ ws.onmessage = (e) => {
 	if(event) {
 		event(msg.data);
 	}
-}
-
-let callbackCode = window.location.href.match(/\?code=(.*)/)[1];
-let callbackEv = {
-	"event": "callbackCode",
-	"data": {
-		"code": callbackCode
-	}
-}
+};
 
 ws.onopen = (e) => {
-	ws.send(JSON.stringify(callbackEv));
-}
+	let event, userId;
+	if((userId = localStorage.getItem("userId"))) {
+		event = {
+			"event": "userIdExists",
+			"data": {
+				"userId": userId
+			}
+		};
+	} else {
+        let callbackCode = window.location.href.match(/\?code=(.*)/)[1];
+        event = {
+            "event": "callbackCode",
+            "data": {
+                "code": callbackCode
+            }
+        };
+    }
+
+    ws.send(JSON.stringify(event));
+    window.history.pushState({}, "", window.origin + "/art"); // TODO: make constant
+};
+
+ws.on("setUserId", (uuid) => {
+	localStorage.setItem("userId", uuid);
+});
 
 const playlistForm = document.getElementById("playlistForm");
 const playlistSelect = document.getElementById("playlistSelect");
@@ -92,7 +107,7 @@ playlistForm.onsubmit = (e) => {
 			"id": playlistSelect.value
 		}
 	}));
-}
+};
 
 const artCanvas = document.createElement("canvas");
 artCanvas.width = "1280";
@@ -170,16 +185,16 @@ function addAllSongs(songs, priQ) {
 								addAllSongs(songs, priQ);
 							}
 						}
-					}
+					};
 					img.src = reader.result;
-				}
+				};
 				reader.readAsDataURL(req.response);
 			}
-		}
+		};
 		req.open("GET", imageUrl);
 		req.responseType = "blob";
 		req.send();
-	};
+	}
 }
 
 function shuffle(arr) {
@@ -266,3 +281,5 @@ function drawArt(ctx, img, x, y, size, steps) {
     }
     ctx.drawImage(imgCanvas, 0, 0, thisSize, thisSize, x, y, thisSize, thisSize);
 }
+
+// TODO: separate into multiple files
