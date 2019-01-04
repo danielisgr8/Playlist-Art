@@ -86,6 +86,8 @@ wss.on("callbackCode", (ws, wsData) => {
 
 				ws.spotify = data;
 				getUserId(ws, () => getAndSendPlaylists(ws));
+			} else {
+				console.trace(data.error);
 			}
 		});
 	});
@@ -156,7 +158,9 @@ function getPlaylistsNext(access_token, next, callback, finalCallback) {
 			data = JSON.parse(data);
 			callback(data);
 
-			if(data.next) {
+			if(data.error) {
+				console.trace(data.error);
+			} else if(data.next) {
 				getPlaylistsNext(access_token, data.next, callback, finalCallback);
 			} else {
 				finalCallback();
@@ -199,7 +203,9 @@ function getPlaylistSongsNext(access_token, next, callback, finalCallback) {
 			data = JSON.parse(data);
 			callback(data);
 
-			if(data.next) {
+			if(data.error) {
+				console.trace(data.error);
+			} else if(data.next) {
 				getPlaylistSongsNext(access_token, data.next, callback, finalCallback);
 			} else {
 				finalCallback();
