@@ -41,7 +41,7 @@ class PriorityQueue {
 		} else {
 			compNode.prev.next = newNode;
 		}
-		compNode.prev = newNode
+		compNode.prev = newNode;
 		this.size++;
 	}
 
