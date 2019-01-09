@@ -3,7 +3,7 @@ const https = require("https");
 const url = require("url");
 const express = require("express");
 const app = express();
-const WebSocket = require("ws");
+const ws = require("ws");
 const uuidv4 = require("uuid/v4");
 
 const CLIENT_ID = "f837d8ee1f684e68b896f42f3c217158";
@@ -35,9 +35,6 @@ app.get("/art", (req, res) => {
 	}
 });
 
-// TODO: on callbackCode, generate uuid and map to access token, set in local storage of client.
-// TODO: when user connects to homepage, check map first
-
 app.use(express.static("./public", { "extensions": ["html"] }));
 
 app.listen(HTTP_PORT, () => { console.log("Server running on port " + HTTP_PORT); });
@@ -49,7 +46,7 @@ function send(ws, eventName, data) {
 	}));
 }
 
-const wss = new WebSocket.Server({ port: WSS_PORT }, () => { console.log("WebSocket server running on port " + WSS_PORT) });
+const wss = new ws.Server({ port: WSS_PORT }, () => { console.log("WebSocket server running on port " + WSS_PORT) });
 
 wss.on("connection", (ws) => {
 	ws.on("message", (msg) => {
@@ -78,16 +75,16 @@ wss.on("callbackCode", (ws, wsData) => {
 		});
 
 		res.on("end", () => {
-			data = JSON.parse(data);
-			if(!data.error) {
+			const parsedData = JSON.parse(data);
+			if(!parsedData.error) {
 				const userUuid = uuidv4();
-				userMap[userUuid] = data.access_token;
+				userMap[userUuid] = parsedData.access_token;
 				send(ws, "setUserId", userUuid);
 
 				ws.spotify = data;
 				getUserId(ws, () => getAndSendPlaylists(ws));
 			} else {
-				console.trace(data.error);
+				console.trace(parsedData.error);
 			}
 		});
 	});
@@ -155,13 +152,13 @@ function getPlaylistsNext(access_token, next, callback, finalCallback) {
 		});
 
 		res.on("end", () => {
-			data = JSON.parse(data);
-			callback(data);
+			const parsedData = JSON.parse(data);
+			callback(parsedData);
 
-			if(data.error) {
-				console.trace(data.error);
-			} else if(data.next) {
-				getPlaylistsNext(access_token, data.next, callback, finalCallback);
+			if(parsedData.error) {
+				console.trace(parsedData.error);
+			} else if(parsedData.next) {
+				getPlaylistsNext(access_token, parsedData.next, callback, finalCallback);
 			} else {
 				finalCallback();
 			}
@@ -180,14 +177,14 @@ wss.on("playlistChosen", (ws, wsData) => {
 	});
 });
 
-function getPlaylistSongs(access_token, userId, playlistId, callback, finalCallback) {
+function getPlaylistSongs(access_token, userId, playlistId, callback, finalCallback): void {
 	getPlaylistSongsNext(access_token,
 					 "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks",
 					 callback, finalCallback);
-
 }
 
-function getPlaylistSongsNext(access_token, next, callback, finalCallback) {
+function getPlaylistSongsNext(access_token: string, next: string, callback: (data: any) => void,
+							  finalCallback: () => void): void {
 	const options = url.parse(next);
 	options.headers = {
 			"Authorization": "Bearer " + access_token
@@ -200,13 +197,13 @@ function getPlaylistSongsNext(access_token, next, callback, finalCallback) {
 		});
 
 		res.on("end", () => {
-			data = JSON.parse(data);
-			callback(data);
+			const parsedData = JSON.parse(data);
+			callback(parsedData);
 
-			if(data.error) {
-				console.trace(data.error);
-			} else if(data.next) {
-				getPlaylistSongsNext(access_token, data.next, callback, finalCallback);
+			if(parsedData.error) {
+				console.trace(parsedData.error);
+			} else if(parsedData.next) {
+				getPlaylistSongsNext(access_token, parsedData.next, callback, finalCallback);
 			} else {
 				finalCallback();
 			}
