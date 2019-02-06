@@ -1,20 +1,22 @@
-// TODO: change below to .ts after migration
-/// <reference path="../js/artUtil.ts" />
-
 import {PriorityQueue} from "../js/priorityQueue";
 import {PlaylistArtController} from "./playlistArtController";
 import {PlaylistArtView} from "./playlistArtView";
 import {Point} from "../js/point";
 import {WebSocketEventManager} from "../js/webSocketEventManager";
+import {ArtConfig} from "../js/artConfig";
+import {ArtUtil} from "../js/artUtil";
 
 const view = new PlaylistArtView();
 const controller = new PlaylistArtController();
 
+const dom_artCanvas = document.createElement("canvas");
+dom_artCanvas.width = 1280;
+dom_artCanvas.height = 1280;
+const artCtx = dom_artCanvas.getContext("2d");
+const CANVAS_SIZE = dom_artCanvas.width;
+
 // Config values
-const Config = {
-	minSize: 150,
-	maxSize: 250
-};
+const config = new ArtConfig(150, 250, CANVAS_SIZE);
 
 const wsManager = new WebSocketEventManager("ws://" + window.location.hostname + ":9090");
 
@@ -22,11 +24,11 @@ wsManager.onopen = (e) => {
     let event, data, userId;
     if((userId = localStorage.getItem("userId"))) {
     	event = "userIdExists";
-    	data = { "userId": userId }; // TODO: should just be String? (requires change on server too)
+    	data = { "userId": userId }; // TODO: data should just be String? (requires change on server too)
     } else {
         let callbackCode = window.location.href.match(/\?code=(.*)/)[1];
         event = "callbackCode";
-        data = { "code": callbackCode }; // TODO: should just be String? (requires change on server too)
+        data = { "code": callbackCode }; // TODO: data should just be String? (requires change on server too)
     }
 
     wsManager.send(event, data);
@@ -56,9 +58,9 @@ wsManager.addHandler("songs", (songs) => {
     // TODO: actually set playlist image
     // TODO: configure on page before creating (max/min size, ordered by date/random)
     // TODO: base size off frequency of album (similar to removeDuplicates but increment value)
-    songs = removeDuplicates(songs);
+    songs = ArtUtil.removeDuplicates(songs);
 
-    const priQ = new PriorityQueue();
+    const priQ = new PriorityQueue<Point>();
     priQ.add(new Point(0, 0));
 
     addAllSongs(songs, priQ);
@@ -77,22 +79,19 @@ controller.dom_playlistForm.onsubmit = (e) => {
 	} else {
 		view.dom_configError.style.visibility = "hidden";
 	}
-	Config.minSize = minSize;
-	Config.maxSize = maxSize;
+	config.minSize = minSize;
+	config.maxSize = maxSize;
 	
 	view.dom_a_download.style.visibility = "hidden";
 
 	wsManager.send("playlistChosen", { "id": controller.dom_playlistSelect.value });
 };
 
-const dom_artCanvas = document.createElement("canvas");
-dom_artCanvas.width = 1280;
-dom_artCanvas.height = 1280;
-const artCtx = dom_artCanvas.getContext("2d");
+
 
 const previewCtx = view.dom_previewCanvas.getContext("2d");
 
-const CANVAS_SIZE = dom_artCanvas.width;
+
 // TODO: this is used in art_util, shouldn't be able to be accessed from there
 // TODO: if we only use this for collision detection, change to quadtree?
 const artMap = new Array(CANVAS_SIZE);
@@ -101,8 +100,8 @@ for(let i = 0; i < artMap.length; i++) {
 	artMap[i].fill(false);
 }
 
-function addAllSongs(songs: any[], priQ: PriorityQueue): void {
-	let shuffledSongs = shuffle(songs);
+function addAllSongs(songs: any[], priQ: PriorityQueue<Point>): void {
+	let shuffledSongs = ArtUtil.shuffle(songs);
 	let running = 0; // keeps track of how many songs are still being processed
 	for(let i = 0; i < shuffledSongs.length; i++) {
 		const e = shuffledSongs[i];
@@ -119,12 +118,12 @@ function addAllSongs(songs: any[], priQ: PriorityQueue): void {
 					const img = new Image();
 					img.onload = () => {
 						if(!priQ.empty()) {
-							addArt(artCtx, artMap, img, priQ);
+							ArtUtil.addArt(artCtx, artMap, img, priQ, config);
 						}
 						running--;
 						if(!running) { // all songs have been processed
 							if(priQ.empty()) {
-								drawArt(previewCtx, dom_artCanvas, 0, 0, view.dom_previewCanvas.width, 3);
+								ArtUtil.drawArt(previewCtx, dom_artCanvas, 0, 0, view.dom_previewCanvas.width, 3);
 								view.dom_a_download.href = dom_artCanvas.toDataURL("image/jpeg");
 								view.dom_a_download.style.visibility = "visible";
 							} else {

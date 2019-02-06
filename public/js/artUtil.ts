@@ -1,7 +1,8 @@
 import {Point} from "./point";
 import {PriorityQueue} from "./priorityQueue";
+import {ArtConfig} from "./artConfig";
 
-class ArtUtil {
+export class ArtUtil {
     public static removeDuplicates(arr: any[]): any[] {
         const res = [];
         const urls = {};
@@ -30,26 +31,26 @@ class ArtUtil {
     // TODO: have this do less, probably just return Point this image should be placed at
     // TODO: shouldn't take in nearly as many parameters
     public static addArt(artCtx: CanvasRenderingContext2D, artMap: boolean[][], img: HTMLImageElement,
-                         priQ: PriorityQueue): void {
+                         priQ: PriorityQueue<Point>, artConfig: ArtConfig): void {
         const nextStart = priQ.popMin();
 
-        const maxWidth = this.distToNextWall(nextStart);
-        let width = Math.floor(Math.random() * (Config.maxSize - Config.minSize) + 1) + Config.minSize; // minSize to maxSize (inclusive)
-        if((width > maxWidth) || (maxWidth - width < Config.minSize)) { // if width would be too large or wouldn't leave enough room until next wall, use maxWidth
+        const maxWidth = this.distToNextWall(nextStart, artMap, artConfig.canvasSize, artConfig.canvasSize);
+        let width = Math.floor(Math.random() * (artConfig.maxSize - artConfig.minSize) + 1) + artConfig.minSize; // minSize to maxSize (inclusive)
+        if((width > maxWidth) || (maxWidth - width < artConfig.minSize)) { // if width would be too large or wouldn't leave enough room until next wall, use maxWidth
             width = maxWidth;
         }
-        if(nextStart.y + width - 1 >= CANVAS_SIZE) { // would extend past the bottom of the canvas
-            width = CANVAS_SIZE - nextStart.y;
+        if(nextStart.y + width - 1 >= artConfig.canvasSize) { // would extend past the bottom of the canvas
+            width = artConfig.canvasSize - nextStart.y;
         }
 
-        const neighborY = this.tallestY(nextStart.x + width);
-        if(!this.outOfBounds(neighborY + 1, nextStart.x + width) &&
+        const neighborY = this.tallestY(nextStart.x + width, artMap);
+        if(!this.outOfBounds(neighborY + 1, nextStart.x + width, artConfig.canvasSize, artConfig.canvasSize) &&
             (neighborY < nextStart.y ||
                 (neighborY >= nextStart.y && nextStart.y + width - 1 > neighborY))) {
             priQ.add(new Point(neighborY + 1, nextStart.x + width)); // add point above where square to the right was passed
         }
-        if(!this.outOfBounds(nextStart.y + width, nextStart.x) &&
-            (this.outOfBounds(nextStart.y + width, nextStart.x - 1) || artMap[nextStart.y + width][nextStart.x - 1])) {
+        if(!this.outOfBounds(nextStart.y + width, nextStart.x, artConfig.canvasSize, artConfig.canvasSize) &&
+            (this.outOfBounds(nextStart.y + width, nextStart.x - 1, artConfig.canvasSize, artConfig.canvasSize) || artMap[nextStart.y + width][nextStart.x - 1])) {
             priQ.add(new Point(nextStart.y + width, nextStart.x)); // if wall to left of top of new square, add point
         }
 
@@ -62,16 +63,16 @@ class ArtUtil {
         this.drawArt(artCtx, img, nextStart.x, nextStart.y, width, 3);
     }
 
-    private static distToNextWall(p): number {
+    private static distToNextWall(p, artMap: boolean[][], yLimit: number, xLimit: number): number {
         let count = 0;
-        while(!this.outOfBounds(p.y, p.x + count) && !artMap[p.y][p.x + count]) {
+        while(!this.outOfBounds(p.y, p.x + count, yLimit, xLimit) && !artMap[p.y][p.x + count]) {
             count++;
         }
         return count;
     }
 
     // returns the tallest point at the given x coordinate
-    private static tallestY(x): number {
+    private static tallestY(x: number, artMap: boolean[][]): number {
         let y = 0;
         while(y < artMap.length && artMap[y][x]) {
             y++;
@@ -79,13 +80,13 @@ class ArtUtil {
         return y - 1; // went one past last point
     }
 
-    private static outOfBounds(y, x): boolean {
-        return (y < 0 || y >= CANVAS_SIZE ||
-            x < 0 || x >= CANVAS_SIZE);
+    private static outOfBounds(y: number, x: number, yLimit: number, xLimit: number): boolean {
+        return (y < 0 || y >= yLimit ||
+            x < 0 || x >= xLimit);
     }
 
     // draws the image through steps number of iterations to avoid ugly scaling
-    private static drawArt(ctx, img, x, y, size, steps): void {
+    public static drawArt(ctx, img, x, y, size, steps): void {
         const multi = Math.pow(size / img.width, 1 / steps);
         const imgCanvas = document.createElement("canvas");
         imgCanvas.width = img.width * multi;

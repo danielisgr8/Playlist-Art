@@ -1,8 +1,8 @@
 import {Node} from "./node";
 import {Comparable} from "./comparable";
 
-export class PriorityQueue {
-	private head: Node;
+export class PriorityQueue<T extends Comparable> {
+	private head: Node<T>;
 	private size: number;
 
 	constructor() {
@@ -10,7 +10,7 @@ export class PriorityQueue {
 		this.size = 0;
 	}
 
-	public add(p: Comparable): void {
+	public add(p: T): void {
 		if(!this.head) {
 			this.head = new Node(null, null, p);
 			this.size++;
@@ -27,7 +27,7 @@ export class PriorityQueue {
             }
             // p.x is less than compNode.data.x
             // it should therefore come before compNode
-            const newNode = new Node(compNode.prev, compNode, p);
+            const newNode = new Node<T>(compNode.prev, compNode, p);
             if (compNode == this.head) {
                 this.head = newNode;
             } else {
@@ -38,7 +38,7 @@ export class PriorityQueue {
         }
 	}
 
-	public popMin(): Comparable {
+	public popMin(): T {
 		if(!this.head) { // nothing to pop
 			return null;
 		}
@@ -51,7 +51,7 @@ export class PriorityQueue {
 		return res.data;
 	}
 
-	public get(i): Comparable {
+	public get(i): T {
 		let res = this.head;
 		while(res && i > 0) {
 			res = res.next;

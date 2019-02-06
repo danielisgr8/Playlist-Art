@@ -1,9 +1,9 @@
 import {Comparable} from "./comparable";
 
-export class Node {
-    public prev: Node;
-    public next: Node;
-    public data: Comparable;
+export class Node<T extends Comparable> {
+    public prev: Node<T>;
+    public next: Node<T>;
+    public data: T;
 
     constructor(prev, next, data) {
         this.prev = prev;

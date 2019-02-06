@@ -81,7 +81,7 @@ wss.on("callbackCode", (ws, wsData) => {
 				userMap[userUuid] = parsedData.access_token;
 				send(ws, "setUserId", userUuid);
 
-				ws.spotify = data;
+				ws.spotify = parsedData;
 				getUserId(ws, () => getAndSendPlaylists(ws));
 			} else {
 				console.trace(parsedData.error);

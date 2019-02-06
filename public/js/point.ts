@@ -1,8 +1,8 @@
 import {Comparable} from "./comparable";
 
 export class Point implements Comparable {
-    private readonly y: number;
-    private readonly x: number;
+    public readonly y: number;
+    public readonly x: number;
 
     constructor(y, x) {
         this.y = y;
