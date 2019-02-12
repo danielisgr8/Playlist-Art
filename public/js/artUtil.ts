@@ -1,4 +1,4 @@
-import {Point} from "./point";
+import {Point} from "./geometry/point";
 import {PriorityQueue} from "./priorityQueue";
 import {ArtConfig} from "./artConfig";
 
