@@ -21,7 +21,7 @@ export class Line implements Geometric {
         this.orientation = orientation;
     }
 
-    contains(g: Geometric): boolean {
+    public contains(g: Geometric): boolean {
         if(g instanceof Point || g instanceof Rectangle || g instanceof Line) {
             let constant: number, // must not differ from `constantG`
                 constantG: number,
@@ -70,5 +70,22 @@ export class Line implements Geometric {
 
         // should theoretically never be reached
         return false;
+    }
+
+    public paint(ctx: CanvasRenderingContext2D): void {
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        if(this.orientation == Orientation.V) {
+            ctx.lineTo(this.x, this.y + this.length);
+        } else {
+            ctx.lineTo(this.x + this.length, this.y);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = "red";
+        ctx.stroke();
+    }
+
+    public toString(): string {
+        return `L(${this.x}, ${this.y}, ${this.length}, ${this.orientation})`;
     }
 }

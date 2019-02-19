@@ -4,12 +4,12 @@ import {Rectangle} from "./retangle";
 import {Line} from "./line";
 
 export class Point implements Comparable, Geometric {
-    public readonly y: number;
     public readonly x: number;
+    public readonly y: number;
 
-    constructor(y: number, x: number) {
-        this.y = y;
+    constructor(x: number, y: number) {
         this.x = x;
+        this.y = y;
     }
 
     public compare(p: Point): number {
@@ -22,7 +22,7 @@ export class Point implements Comparable, Geometric {
         }
     }
 
-    contains(g: Geometric): boolean {
+    public contains(g: Geometric): boolean {
         if(g instanceof Point || g instanceof Rectangle || g instanceof Line) {
             if(g.x != this.x || g.y != this.y) return false;
 
@@ -39,7 +39,16 @@ export class Point implements Comparable, Geometric {
         return false;
     }
 
+    public paint(ctx: CanvasRenderingContext2D): void {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 3, 0, 360);
+        ctx.closePath();
+        ctx.strokeStyle = "red";
+        ctx.stroke();
+
+    }
+
     public toString(): string {
-        return `(${this.y}, ${this.x})`;
+        return `P(${this.y}, ${this.x})`;
     }
 }

@@ -19,12 +19,12 @@ export class Quadtree<T extends Geometric> {
 
     constructor(x: number, y: number, width: number, height: number) {
         this.bounds = new Rectangle(x, y, width, height);
-        this.elements = new Array(QUADTREE_SOFT_CAPACITY * 2);
+        this.elements = [];
     }
 
     /**
      * Attempts to insert `el` into the `Quadtree`.
-     * If inserting `el` causes the `Quadtree`'s capacity to be reached, it will subdivide into four `Quadtree`s.
+     * If inserting `el` causes the `Quadtree`'s capacity to be exceeded, it will subdivide into four `Quadtree`s.
      * If `el` fits entirely in a subdivision, it will be inserted there.
      * Otherwise, it will be inserted into this `Quadtree`.
      * @param el The element to insert
@@ -33,16 +33,22 @@ export class Quadtree<T extends Geometric> {
     public insert(el: T): boolean {
         if(!this.bounds.contains(el)) return false;
 
-        if(this.elements.length < QUADTREE_SOFT_CAPACITY && this.qtNW == null) {
-            this.elements.push(el);
-            return true;
+        if(this.qtNW == null) {
+            if(this.elements.length >= QUADTREE_SOFT_CAPACITY) {
+                this.subdivide();
+            } else {
+                this.elements.push(el);
+                return true;
+            }
         }
 
-        if(this.qtNW == null) this.subdivide();
-
+        // attempt to fit `el` in smaller `Quadtree`
+        let inserted = false;
         this.qts.forEach(qt => {
-            if(qt.insert(el)) return true;
+            if(inserted) return;
+            if(qt.insert(el)) inserted = true;
         });
+        if(inserted) return true;
 
         // if `el` can't be fully contained within a subdivision, insert it into this quadtree
         this.elements.push(el);
@@ -62,28 +68,89 @@ export class Quadtree<T extends Geometric> {
 
         // check if current nodes can now fit in a smaller quadtree
         this.elements = this.elements.filter(el => {
+            let keep = true;
             this.qts.forEach(qt => {
-                if(qt.insert(el)) return false;
+                if(!keep) return;
+                if(qt.insert(el)) keep = false;
             });
-            return true;
+            return keep;
         });
     }
 
     /**
-     * Checks if any element in this `Quadtree` contains `t`
-     * @param t The element to check against this quadtree
-     * @return `true` if any element contains `t`, `false` otherwise
+     * Checks if any element in this `Quadtree` contains `g`
+     * @param g The element to check against this `Quadtree`
+     * @return all elements in this `Quadtree` that contain `g`
      */
-    public hitTest(t: T): boolean {
+    public hitTest(g: Geometric): T[] {
+        let results: T[] = [];
+
         if(this.qtNW != null) {
             this.qts.forEach(qt => {
-                if(qt.bounds.contains(t)) return qt.hitTest(t);
+                if(qt.bounds.contains(g)) results = results.concat(qt.hitTest(g));
             });
         }
 
         this.elements.forEach(el => {
-            if(el.contains(t)) return true;
+            if(el.contains(g)) results.push(el);
         });
-        return false;
+
+        return results;
+    }
+
+    public paint(ctx: CanvasRenderingContext2D): void {
+        let minX = this.bounds.x;
+        let minY = this.bounds.y;
+        let maxX = this.bounds.x + this.bounds.width;
+        let maxY = this.bounds.y + this.bounds.height;
+        ctx.beginPath();
+        ctx.moveTo(minX, minY);
+        ctx.lineTo(maxX, minY);
+        ctx.lineTo(maxX, maxY);
+        ctx.lineTo(minX, maxY);
+        ctx.closePath();
+        ctx.strokeStyle = "black";
+        ctx.stroke();
+
+        if(this.qtNW != null) {
+            this.qtNW.paint(ctx);
+            this.qtNE.paint(ctx);
+            this.qtSE.paint(ctx);
+            this.qtSW.paint(ctx);
+        }
+
+        this.elements.forEach(el => {
+            el.paint(ctx);
+        });
+    }
+
+    public toString(): string {
+        return this.toStringHelper(0);
+
+    }
+
+    private toStringHelper(indent: number): string {
+        let str = "";
+        for(let i = 0; i < indent; i++) {
+            str += "\t";
+        }
+
+        str += "[ ";
+        this.elements.forEach((el, i) => {
+            if(i != 0) {
+                str += ", ";
+            }
+            str += el.toString();
+        });
+        str += " ]\n";
+
+        if(this.qtNW != null) {
+            str += this.qtNW.toStringHelper(indent + 1);
+            str += this.qtNE.toStringHelper(indent + 1);
+            str += this.qtSE.toStringHelper(indent + 1);
+            str += this.qtSW.toStringHelper(indent + 1);
+        }
+
+        return str;
     }
 }

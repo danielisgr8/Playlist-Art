@@ -15,7 +15,7 @@ export class Rectangle implements Geometric {
         this.height = height;
     }
 
-    contains(g: Geometric): boolean {
+    public contains(g: Geometric): boolean {
         let startGX: number,
             startGY: number,
             endGX: number,
@@ -47,5 +47,24 @@ export class Rectangle implements Geometric {
 
         // should theoretically never be reached
         return false;
+    }
+
+    public paint(ctx: CanvasRenderingContext2D): void {
+        let minX = this.x;
+        let minY = this.y;
+        let maxX = this.x + this.width;
+        let maxY = this.y + this.height;
+        ctx.beginPath();
+        ctx.moveTo(minX, minY);
+        ctx.lineTo(maxX, minY);
+        ctx.lineTo(maxX, maxY);
+        ctx.lineTo(minX, maxY);
+        ctx.closePath();
+        ctx.strokeStyle = "red";
+        ctx.stroke();
+    }
+
+    public toString(): string {
+        return `R(${this.x}, ${this.y}, ${this.width}, ${this.height})`;
     }
 }
