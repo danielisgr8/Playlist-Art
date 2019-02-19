@@ -1,6 +1,7 @@
 import {Comparable} from "../comparable";
 import {Geometric} from "./geometric";
 import {Rectangle} from "./retangle";
+import {Line} from "./line";
 
 export class Point implements Comparable, Geometric {
     public readonly y: number;
@@ -22,14 +23,20 @@ export class Point implements Comparable, Geometric {
     }
 
     contains(g: Geometric): boolean {
-        if(g instanceof Point) {
-            return g.x == this.x && g.y == this.y;
-        } else if(g instanceof Rectangle) {
-            return g.x == this.x &&
-                   g.width == 0 &&
-                   g.y == this.y &&
-                   g.height == 0;
+        if(g instanceof Point || g instanceof Rectangle || g instanceof Line) {
+            if(g.x != this.x || g.y != this.y) return false;
+
+            if(g instanceof Point) {
+                return true;
+            } else if(g instanceof Rectangle) {
+                return g.width == 0 && g.height == 0;
+            } else {
+                return g.length == 0;
+            }
         }
+
+        // should theoretically never be reached
+        return false;
     }
 
     public toString(): string {
