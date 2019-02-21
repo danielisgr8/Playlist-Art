@@ -3,6 +3,7 @@ CLIENT_SECRET
 package-lock.json
 .idea/
 *.js
+*.map
 
 # Logs
 logs

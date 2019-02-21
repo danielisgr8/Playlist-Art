@@ -1,5 +1,6 @@
 import {Rectangle} from "./retangle";
 import {Geometric} from "./geometric";
+import {GeomUtil} from "./geomUtil";
 
 const QUADTREE_SOFT_CAPACITY: number = 4;
 
@@ -82,17 +83,33 @@ export class Quadtree<T extends Geometric> {
      * @param g The element to check against this `Quadtree`
      * @return all elements in this `Quadtree` that contain `g`
      */
-    public hitTest(g: Geometric): T[] {
+    public contains(g: Geometric): T[] {
         let results: T[] = [];
 
         if(this.qtNW != null) {
             this.qts.forEach(qt => {
-                if(qt.bounds.contains(g)) results = results.concat(qt.hitTest(g));
+                if(qt.bounds.contains(g)) results = results.concat(qt.contains(g));
             });
         }
 
         this.elements.forEach(el => {
             if(el.contains(g)) results.push(el);
+        });
+
+        return results;
+    }
+
+    public hitTest(g: Geometric): T[] {
+        let results: T[] = [];
+
+        if(this.qtNW != null) {
+            this.qts.forEach(qt => {
+                if(GeomUtil.overlaps(qt.bounds, g)) results = results.concat(qt.hitTest(g));
+            });
+        }
+
+        this.elements.forEach(el => {
+            if(GeomUtil.overlaps(el, g)) results.push(el);
         });
 
         return results;
