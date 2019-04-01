@@ -16,91 +16,82 @@ export class GeomUtil {
         return false;
     }
     
-    private static rectangleOverlaps(g1: Rectangle, g2: Geometric): boolean {
-        if(g2 instanceof Point) {
-            return g1.contains(g2);
-        } else if(g2 instanceof Line) {
-            let gConst: number,
-                constStart: number,
-                constEnd: number,
-                gChangeStart: number,
-                changeStart: number,
+    private static rectangleOverlaps(r: Rectangle, g: Geometric): boolean {
+        if(g instanceof Point) {
+            return r.contains(g);
+        } else if(g instanceof Line) {
+            let gConst: number, constStart: number, constEnd: number, gChangeStart: number, changeStart: number,
                 changeEnd: number;
-            if(g2.orientation == Orientation.V) {
-                gConst = g2.x;
-                constStart = g1.x;
-                constEnd = g1.x + g1.width;
-                gChangeStart = g2.y;
-                changeStart = g1.y;
-                changeEnd = g1.y + g1.height;
-            } else if(g2.orientation == Orientation.H) {
-                gConst = g2.y;
-                constStart = g1.y;
-                constEnd = g1.y + g1.height;
-                gChangeStart = g2.x;
-                changeStart = g1.x;
-                changeEnd = g1.x + g1.width;
+            if(g.orientation == Orientation.V) {
+                gConst = g.x;
+                constStart = r.x;
+                constEnd = r.x + r.width;
+                gChangeStart = g.y;
+                changeStart = r.y;
+                changeEnd = r.y + r.height;
+            } else if(g.orientation == Orientation.H) {
+                gConst = g.y;
+                constStart = r.y;
+                constEnd = r.y + r.height;
+                gChangeStart = g.x;
+                changeStart = r.x;
+                changeEnd = r.x + r.width;
             }
             return gConst >= constStart &&
                 gConst <= constEnd &&
                 gChangeStart <= changeEnd &&
-                gChangeStart + g2.length >= changeStart;
-        } else if(g2 instanceof Rectangle) {
-            return g2.x + g2.width >= g1.x &&
-                g2.y + g2.height >= g1.y &&
-                g2.x <= g1.x + g1.width &&
-                g2.y <= g1.y + g1.height;
+                gChangeStart + g.length >= changeStart;
+        } else if(g instanceof Rectangle) {
+            return g.x + g.width >= r.x &&
+                g.y + g.height >= r.y &&
+                g.x <= r.x + r.width &&
+                g.y <= r.y + r.height;
         }
 
         return false;
     }
     
-    private static lineOverlaps(g1: Line, g2: Geometric): boolean {
-        if(g2 instanceof Line) {
-            if(g1.orientation != g2.orientation) {
-                let rangeG,
-                    range,
-                    startG,
-                    start;
-                if(g1.orientation == Orientation.V) {
-                    rangeG = g2.y;
-                    range = g1.y;
-                    startG = g2.x;
-                    start = g1.x;
+    private static lineOverlaps(l: Line, g: Geometric): boolean {
+        if(g instanceof Line) {
+            if(l.orientation != g.orientation) {
+                let rangeG: number, range: number, startG: number, start: number;
+                if(l.orientation == Orientation.V) {
+                    rangeG = g.y;
+                    range = l.y;
+                    startG = g.x;
+                    start = l.x;
                 } else {
-                    rangeG = g2.x;
-                    range = g1.x;
-                    startG = g2.y;
-                    start = g1.y;
+                    rangeG = g.x;
+                    range = l.x;
+                    startG = g.y;
+                    start = l.y;
                 }
+
                 return rangeG >= range &&
-                    rangeG <= range + g1.length &&
+                    rangeG <= range + l.length &&
                     startG <= start &&
-                    startG + g2.length >= start;
+                    startG + g.length >= start;
             } else {
-                let sameG,
-                    same,
-                    startG,
-                    start;
-                if(g1.orientation == Orientation.V) {
-                    sameG = g2.x;
-                    same = g1.x;
-                    startG = g2.y;
-                    start = g1.y;
+                let sameG, same, startG, start;
+                if(l.orientation == Orientation.V) {
+                    sameG = g.x;
+                    same = l.x;
+                    startG = g.y;
+                    start = l.y;
                 } else {
-                    sameG = g2.y;
-                    same = g1.y;
-                    startG = g2.x;
-                    start = g1.x;
+                    sameG = g.y;
+                    same = l.y;
+                    startG = g.x;
+                    start = l.x;
                 }
                 return sameG == same &&
-                    startG <= start + g1.length &&
-                    startG + g2.length >= start;
+                    startG <= start + l.length &&
+                    startG + g.length >= start;
             }
-        } else if(g2 instanceof Point) {
-            return g1.contains(g2);
-        } else if(g2 instanceof Rectangle) {
-            return this.rectangleOverlaps(g2, g1);
+        } else if(g instanceof Point) {
+            return l.contains(g);
+        } else if(g instanceof Rectangle) {
+            return this.rectangleOverlaps(g, l);
         }
 
         return false;

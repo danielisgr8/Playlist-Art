@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsc server.ts && node server.js",
-    "buildClient": "browserify public/art/main.ts -p [ tsify ] > bundle.js"
+    "buildClient": "browserify public/art/main.ts -p [ tsify ] > public/art/bundle.js"
   },
   "repository": {
     "type": "git",

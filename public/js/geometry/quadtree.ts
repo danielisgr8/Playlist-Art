@@ -116,6 +116,7 @@ export class Quadtree<T extends Geometric> {
     }
 
     public paint(ctx: CanvasRenderingContext2D): void {
+        /*
         let minX = this.bounds.x;
         let minY = this.bounds.y;
         let maxX = this.bounds.x + this.bounds.width;
@@ -128,6 +129,7 @@ export class Quadtree<T extends Geometric> {
         ctx.closePath();
         ctx.strokeStyle = "black";
         ctx.stroke();
+        */
 
         if(this.qtNW != null) {
             this.qtNW.paint(ctx);

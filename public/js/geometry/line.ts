@@ -13,12 +13,22 @@ export class Line implements Geometric {
     public y: number;
     public length: number;
     public orientation: Orientation;
+    public pid: number;
 
-    constructor(x: number, y: number, length: number, orientation: Orientation) {
+    constructor(x: number, y: number, length: number, orientation: Orientation, pid = 0) {
+        if(length < 0) {
+            if(orientation == Orientation.V) {
+                y += length;
+            } else {
+                x += length;
+            }
+            length = -length;
+        }
         this.x = x;
         this.y = y;
         this.length = length;
         this.orientation = orientation;
+        this.pid = pid;
     }
 
     public contains(g: Geometric): boolean {
