@@ -18,7 +18,7 @@ const CANVAS_SIZE = dom_artCanvas.width;
 // Config values
 const config = new ArtConfig(150, 250, CANVAS_SIZE);
 
-const wsManager = new WebSocketEventManager("ws://" + window.location.hostname + ":9090");
+const wsManager = new WebSocketEventManager("ws://" + window.location.hostname);
 
 wsManager.onopen = (e) => {
     let event, data, userId;
