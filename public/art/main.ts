@@ -33,7 +33,7 @@ wsManager.onopen = (e) => {
     }
 
     wsManager.send(event, data);
-    window.history.pushState({}, "", window.location.origin + "/art/"); // TODO: make constant
+    window.history.pushState({}, "", window.location.origin + window.location.pathname);
 };
 
 wsManager.addHandler("setUserId", (uuid) => {
