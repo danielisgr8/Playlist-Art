@@ -5,7 +5,7 @@ export class Node<T extends Comparable> {
     public next: Node<T>;
     public data: T;
 
-    constructor(prev, next, data) {
+    constructor(prev: Node<T>, next: Node<T>, data: T) {
         this.prev = prev;
         this.next = next;
         this.data = data;
