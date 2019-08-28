@@ -5,13 +5,21 @@ const express = require("express");
 const app = express();
 const ws = require("ws");
 const uuidv4 = require("uuid/v4");
+const commandLineArgs = require("command-line-args");
 
-const CLIENT_ID = "f837d8ee1f684e68b896f42f3c217158";
-const REDIRECT_URI = "http://localhost/art";
-const HTTP_PORT = process.env.PORT || 80;
-const WSS_PORT = 9090;
+const optionDefinitions = [
+    { name: "redirectUri", alias: "r", type: String, defaultValue: "http://localhost/art" },
+	{ name: "port", alias: "p", type: Number, defaultValue: 80 },
+    { name: "clientID", alias: "c", type: String, defaultValue: "f837d8ee1f684e68b896f42f3c217158"},
+    { name: "secretFile", alias: "s", type: String, defaultValue: "./CLIENT_SECRET" }
+];
+const options = commandLineArgs(optionDefinitions);
 
-const CSFile = fs.readFileSync("./CLIENT_SECRET");
+const CLIENT_ID = options.clientID;
+const REDIRECT_URI = options.redirectUri;
+const HTTP_PORT = options.port;
+
+const CSFile = fs.readFileSync(options.secretFile);
 const CLIENT_SECRET = CSFile.toString("utf8", 0, CSFile.length);
 
 // map from user id to access_token
@@ -37,7 +45,7 @@ app.get("/art", (req, res) => {
 
 app.use(express.static("./public", { "extensions": ["html"] }));
 
-app.listen(HTTP_PORT, () => { console.log("Server running on port " + HTTP_PORT); });
+const httpServer = app.listen(HTTP_PORT, () => { console.log("Server running on port " + HTTP_PORT); });
 
 function send(ws, eventName, data) {
 	ws.send(JSON.stringify({
@@ -46,7 +54,7 @@ function send(ws, eventName, data) {
 	}));
 }
 
-const wss = new ws.Server({ port: WSS_PORT }, () => { console.log("WebSocket server running on port " + WSS_PORT) });
+const wss = new ws.Server({ server: httpServer });
 
 wss.on("connection", (ws) => {
 	ws.on("message", (msg) => {
