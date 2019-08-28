@@ -18,7 +18,8 @@ const CANVAS_SIZE = dom_artCanvas.width;
 // Config values
 const config = new ArtConfig(150, 250, CANVAS_SIZE);
 
-const wsManager = new WebSocketEventManager("ws://" + window.location.hostname);
+const wsProtocol = window.location.protocol === "http:" ? "ws://" : "wss://";
+const wsManager = new WebSocketEventManager(wsProtocol + window.location.hostname + /(.*)\/art/.exec(window.location.pathname)[1]);
 
 wsManager.onopen = (e) => {
     let event, data, userId;
@@ -32,7 +33,7 @@ wsManager.onopen = (e) => {
     }
 
     wsManager.send(event, data);
-    window.history.pushState({}, "", window.location.origin + "/art"); // TODO: make constant
+    window.history.pushState({}, "", window.location.origin + "/art/"); // TODO: make constant
 };
 
 wsManager.addHandler("setUserId", (uuid) => {
