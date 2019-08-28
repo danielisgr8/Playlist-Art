@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/danielisgr8/Playlist-Art#readme",
   "dependencies": {
+    "@types/node": "^12.7.2",
     "browserify": "^16.2.3",
     "command-line-args": "^5.1.1",
     "express": "^4.16.3",
