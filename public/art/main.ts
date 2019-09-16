@@ -33,7 +33,7 @@ wsManager.onopen = (e) => {
     }
 
     wsManager.send(event, data);
-    window.history.pushState({}, "", window.location.origin + window.location.pathname);
+    window.history.replaceState({}, "", window.location.origin + window.location.pathname);
 };
 
 wsManager.addHandler("setUserId", (uuid) => {
